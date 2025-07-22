@@ -1,5 +1,6 @@
 
 # Ignore HLS output directory
-/hls/*
-music/*.mp3
+*.ts
+*.m3u8
+*.mp3
 radio.liq
