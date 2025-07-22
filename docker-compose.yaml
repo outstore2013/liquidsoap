@@ -1,0 +1,27 @@
+version: '3'
+services:
+  loiti-liquidsoap:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: outstore2/liquidsoap:latest
+    volumes:
+      - ./music:/app/music
+      - ./radio.liq:/app/radio.liq
+    environment:
+      - ICECAST_HOSTNAME="icecast"
+      - ICECAST_PORT=8000
+      - ICECAST_PASSWORD="hackme"
+      - ICECAST_MOUNTPOINT="/stream"
+      - ICECAST_BITRATE=320
+      - ICECAST_RADIO_NAME="loiti-radio-test"
+      - ICECAST_RADIO_DESCRIPTION="Radio de test pour Loiti"
+      - ICECAST_RADIO_GENDER="Variety"
+      - ICECAST_RADIO_PUBLIC=true
+    command: ["liquidsoap", "/app/radio.liq"]
+    networks:
+          - icecast-net
+          
+networks:
+  icecast-net:
+    external: true
