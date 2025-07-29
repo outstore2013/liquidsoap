@@ -1,0 +1,55 @@
+# Logging
+set("log.stdout", true)
+set("log.file", true)
+set("log.file.path", "/app/logs/liquidsoap.log")
+
+# Chemin vers le répertoire contenant les fichiers MP3
+music_directory = "/app/music"
+
+# Chargement des fichiers MP3 du répertoire
+music_source = mksafe(playlist(mode="normal", reload_mode="watch", music_directory))
+
+# Définition du flux de sortie vers Icecast
+output.icecast(
+  %mp3(bitrate=$ICECAST_BITRATE),
+  host = $ICECAST_HOSTNAME,
+  port = $ICECAST_PORT,
+  password = $ICECAST_PASSWORD,
+  mount = $ICECAST_MOUNTPOINT,
+  name = $ICECAST_RADIO_NAME,
+  description = $ICECAST_RADIO_DESCRIPTION,
+  url = "$ICECAST_RADIO_URL",
+  genre = $ICECAST_RADIO_GENDER,
+  public = $ICECAST_RADIO_PUBLIC,
+  music_source
+)
+
+
+# Encodages HLS
+#aac_lofi = %ffmpeg(format="mpegts", %audio(codec="aac", channels=2, ar=44100, b="64k"))
+#aac_hifi = %ffmpeg(format="mpegts", %audio(codec="aac", channels=2, ar=44100, b="192k"))
+
+#streams = [
+#  ("lofi", aac_lofi),
+#  ("hifi", aac_hifi)
+#]
+
+## Générateur de nom de segments
+#def segment_name(metadata) =
+#  timestamp = int_of_float(time())
+#  let {stream_name, duration, position, extname} = metadata
+#  "#{stream_name}_#{duration}_#{timestamp}_#{position}.#{extname}"
+#end
+
+## Output HLS
+#output.file.hls(
+#  playlist = "stream.m3u8",
+#  segment_duration = 6.0,
+#  segments = 8,
+#  segments_overhead = 4,
+#  segment_name = segment_name,
+#  persist_at = "/app/hls/state.json",
+#  "/app/hls",
+#  streams,
+#  music_source
+#)
