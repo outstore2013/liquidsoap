@@ -1,0 +1,9 @@
+.git
+.gitignore
+Dockerfile
+README.md
+*.md
+*.log
+*.bak
+node_modules
+__pycache__

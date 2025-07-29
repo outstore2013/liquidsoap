@@ -1,8 +1,9 @@
-FROM ocaml/opam:debian-12
+FROM debian:12-slim
 
 ENV ICECAST_HOSTNAME="localhost"
 ENV ICECAST_PORT=8000
 ENV ICECAST_PASSWORD="hackme"
+ENV ICECAST_SSL=false
 ENV ICECAST_MOUNTPOINT="/stream"
 ENV ICECAST_BITRATE=320
 
@@ -16,26 +17,18 @@ ENV ICECAST_RADIO_PUBLIC=true
 WORKDIR /app
 
 USER root
-RUN apt-get update
-RUN apt-get install -y curl libssl-dev gettext-base
+RUN apt update
+RUN DEBIAN_FRONTEND=noninteractive apt upgrade -y
+RUN DEBIAN_FRONTEND=noninteractive apt install -y curl libssl-dev gettext-base libtag1v5 libmad0 libmp3lame0 ffmpeg liquidsoap
 
-USER opam
-ENV OPAM_SWITCH=5.3
-ENV PATH="/home/opam/.opam/${OPAM_SWITCH}/bin:$PATH"
-
-RUN opam depext taglib mad lame cry ffmpeg liquidsoap
-RUN opam install taglib mad lame cry ffmpeg liquidsoap
-RUN opam clean
-
-USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 # clean up
 RUN apt-get -y autoremove && apt-get clean all
 RUN rm -rf /var/lib/apt/lists/*
 
-USER opam
-RUN mkdir -p /app/logs
+RUN mkdir -p /app/logs && chown -R liquidsoap:liquidsoap /app
+USER liquidsoap
 COPY radio.liq.template /app/radio.liq.template
 
 ENTRYPOINT ["/entrypoint.sh"]
